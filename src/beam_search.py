@@ -12,20 +12,30 @@ class Candidate():
         self.state = state
 
 class BeamSearch():
-    # Minimizing the objective function: score, state_next = func(state, idx)
+    """
+    Beam search
+    Minimizing the objective function
+    func:       objective function      (score, state_next = func(state, idx))
+    state0:     initial state
+    cand_num:   number of the candidates
+    seq_len:    length of the sequence
+    width:      width of the beam
+    """
+
     def __init__(
         self,
         func,
         state0,
-        num_cand = 10,
-        num_seq = 5,
+        cand_num = 10,
+        seq_len = 5,
         width = 3
     ):
         super().__init__()
         self.func = func
         self.state0 = state0
-        self.num_cand = num_cand
-        self.num_seq = num_seq
+        self.state_len = len(state0)
+        self.cand_num = cand_num
+        self.seq_len = seq_len
         self.width = width
 
     def search(self):
@@ -33,7 +43,7 @@ class BeamSearch():
         candidates = [Candidate(self.state0)]
 
         # Loop over words.
-        for _ in range(self.num_seq):
+        for _ in range(self.seq_len):
             candidates_new = []
             # Loop over candidates.
             for i in range(len(candidates)):
@@ -42,9 +52,9 @@ class BeamSearch():
                 score = candidates[i].score
 
                 # Predict next token.
-                score_next = np.zeros(self.num_cand)
-                state_next = np.zeros([self.num_cand, len(candidates[i].state)])
-                for j in range(self.num_cand):
+                score_next = np.zeros(self.cand_num)
+                state_next = np.zeros([self.cand_num, self.state_len])
+                for j in range(self.cand_num):
                     if j in seq:
                         score_next[j] = np.inf
                     else:
