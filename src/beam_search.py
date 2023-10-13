@@ -8,7 +8,7 @@ import numpy as np
 class Candidate():
     def __init__(self, state = None):
         self.seq = []
-        self.score = 0
+        self.reward = 0.
         self.state = state
 
 class BeamSearch():
@@ -49,7 +49,7 @@ class BeamSearch():
             for i in range(len(candidates)):
                 # Candidate details.
                 seq = candidates[i].seq
-                score = candidates[i].score
+                reward = candidates[i].reward
 
                 # Predict next token.
                 score_next = np.zeros(self.cand_num)
@@ -71,14 +71,14 @@ class BeamSearch():
                     # Update candidate details.
                     candidate.seq = seq.copy()
                     candidate.seq.append(idx_top[j])
-                    candidate.score = score + score_top[j]
+                    candidate.reward = reward + score_top[j]
                     candidate.state = state_next[idx_top[j]].copy()
 
                     # Add to new candidates.
                     candidates_new.append(candidate)
 
             # Get top candidates.
-            candidates_new.sort(key=lambda x: x.score)
+            candidates_new.sort(key=lambda x: x.reward)
             candidates = candidates_new[:self.width].copy()
 
         # Get top candidate.
