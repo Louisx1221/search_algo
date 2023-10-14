@@ -23,8 +23,12 @@ class MCTS():
     """
     Monte Carlo Tree Search (upper confidence bounds for tree, UCT)
     Minimizing the objective function
-    func:       objective function      (score, state_next = func(state, idx))
-    state0:     initial state
+    func:               objective function      (score, state_next = func(state, idx))
+    state0:             initial state
+    node_num:           number of the nodes
+    seq_len:            length of the sequence
+    computation_budget: computational budget (iteration constraint)
+    gamma:              discount factor
     """
 
     def __init__(
@@ -33,7 +37,8 @@ class MCTS():
         state0,
         node_num = 10,
         seq_len = 5,
-        computation_budget = 3
+        computation_budget = 100,
+        gamma = 0.9
     ):
         super().__init__()
         self.func = func
@@ -42,6 +47,7 @@ class MCTS():
         self.node_num = node_num
         self.seq_len = seq_len
         self.computation_budget = computation_budget
+        self.gamma = gamma
 
     def search(self):
         # Create root node v0 with state s0
@@ -49,12 +55,13 @@ class MCTS():
         for _ in range(self.seq_len):
             node = self.uct_search(node)
 
+        node.reward = -node.reward
         return node
 
     def uct_search(self, node):
-        # Run as much as possible under the computation budget
-        computation_budget = min(self.node_num - len(node.seq), self.computation_budget)
-        for _ in range(computation_budget):
+        # self.computation_budget = min(self.node_num - len(node.seq), self.computation_budget)
+        computation_budget = self.computation_budget
+        for _ in range(self.computation_budget):
             # 1. Find the best node to expand
             expand_node = self.tree_policy(node)
 
@@ -84,14 +91,15 @@ class MCTS():
     def expand(self, node):
         # Choose a in untried actions from A(s(v))
         act = random.choice(range(self.node_num))
-        while (act in node.seq) or (act in node.child_idx):
+        # while (act in node.seq) or (act in node.child_idx):
+        while act in node.seq:
             act = random.choice(range(self.node_num))
 
         # Add a new child v' to v
         sub_node = Node()
         reward, sub_node.state = self.func(node.state, act)
         sub_node.seq = node.seq + [act] 
-        sub_node.reward = node.reward + reward
+        sub_node.reward = node.reward - reward
         sub_node.parent = node
         node.children.append(sub_node)
         node.child_idx.append(act)
@@ -133,9 +141,9 @@ class MCTS():
                 act = random.choice(range(self.node_num))
             reward, current_state = self.func(current_state, act)
             current_seq.append(act)
-            rewards += reward
+            rewards += -reward * self.gamma
 
-        return -rewards
+        return rewards
 
     def backup(self, node, reward):
         # Update util the root node

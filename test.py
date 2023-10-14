@@ -29,7 +29,7 @@ if __name__ == '__main__':
     print("Beam search:", res_bs.reward)
     print(res_bs.seq)
     # Monte Carlo Tree Search
-    search_algo = MCTS(func, state0, 100, 20, 1000)
+    search_algo = MCTS(func, state0, 100, 20, 1000, gamma=0.5)
     res_mcts = search_algo.search()
     print("MCTS:", res_mcts.reward)
     print(res_mcts.seq)
