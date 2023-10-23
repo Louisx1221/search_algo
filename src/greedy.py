@@ -8,6 +8,7 @@ import numpy as np
 class Candidate():
     def __init__(self, state = None):
         self.seq = []
+        self.seq_rew = []
         self.reward = 0.
         self.state = state
 
@@ -56,6 +57,7 @@ class Greedy():
 
             # Update candidate details.
             candidate.seq.append(idx_top)
+            candidate.seq_rew.append(score_top)
             candidate.reward += score_top
             candidate.state = state_next[idx_top].copy()
 

@@ -10,6 +10,7 @@ import random
 class Node():
     def __init__(self, state = None):
         self.seq = []
+        self.seq_rew = []
         self.reward = 0.
         self.state = state
         self.terminal = False
@@ -84,6 +85,8 @@ class MCTS():
                 return self.expand(node)
             else:
                 node = self.best_child(node, True)
+                if len(node.seq) >= self.seq_len:
+                    node.terminal =True
 
         # Return the leaf node
         return node
@@ -98,7 +101,8 @@ class MCTS():
         # Add a new child v' to v
         sub_node = Node()
         reward, sub_node.state = self.func(node.state, act)
-        sub_node.seq = node.seq + [act] 
+        sub_node.seq = node.seq + [act]
+        sub_node.seq_rew = node.seq_rew + [reward]
         sub_node.reward = node.reward - reward
         sub_node.parent = node
         node.children.append(sub_node)
@@ -141,6 +145,7 @@ class MCTS():
                 act = random.choice(range(self.node_num))
             reward, current_state = self.func(current_state, act)
             current_seq.append(act)
+            # Discount reward
             rewards += -reward * self.gamma
 
         return rewards

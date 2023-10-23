@@ -8,6 +8,7 @@ import numpy as np
 class Candidate():
     def __init__(self, state = None):
         self.seq = []
+        self.seq_rew = []
         self.reward = 0.
         self.state = state
 
@@ -49,6 +50,7 @@ class BeamSearch():
             for i in range(len(candidates)):
                 # Candidate details.
                 seq = candidates[i].seq
+                seq_rew = candidates[i].seq_rew
                 reward = candidates[i].reward
 
                 # Predict next token.
@@ -71,6 +73,8 @@ class BeamSearch():
                     # Update candidate details.
                     candidate.seq = seq.copy()
                     candidate.seq.append(idx_top[j])
+                    candidate.seq_rew = seq_rew.copy()
+                    candidate.seq_rew.append(score_top[j])
                     candidate.reward = reward + score_top[j]
                     candidate.state = state_next[idx_top[j]].copy()
 
