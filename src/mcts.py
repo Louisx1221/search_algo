@@ -60,8 +60,6 @@ class MCTS():
         return node
 
     def uct_search(self, node):
-        # self.computation_budget = min(self.node_num - len(node.seq), self.computation_budget)
-        computation_budget = self.computation_budget
         for _ in range(self.computation_budget):
             # 1. Find the best node to expand
             expand_node = self.tree_policy(node)
@@ -74,13 +72,13 @@ class MCTS():
 
         # N. Get the best next node
         best_next_node = self.best_child(node, False)
-        
+
         return best_next_node
 
     def tree_policy(self, node):
         # Check if the current node is the leaf node
         while not node.terminal:
-            if len(node.children) < self.node_num:
+            if len(node.seq) + len(node.children) < self.node_num:
                 # Return the new sub node
                 return self.expand(node)
             else:
@@ -94,8 +92,7 @@ class MCTS():
     def expand(self, node):
         # Choose a in untried actions from A(s(v))
         act = random.choice(range(self.node_num))
-        # while (act in node.seq) or (act in node.child_idx):
-        while act in node.seq:
+        while (act in node.seq) or (act in node.child_idx):
             act = random.choice(range(self.node_num))
 
         # Add a new child v' to v
@@ -137,6 +134,7 @@ class MCTS():
         current_seq = node.seq.copy()
         rewards = node.reward
 
+        gamma = self.gamma
         # Run until the game over
         while len(current_seq) < self.seq_len:
             # Pick one random action to play and get next state
@@ -146,7 +144,8 @@ class MCTS():
             reward, current_state = self.func(current_state, act)
             current_seq.append(act)
             # Discount reward
-            rewards += -reward * self.gamma
+            gamma *= self.gamma
+            rewards += -reward * gamma
 
         return rewards
 

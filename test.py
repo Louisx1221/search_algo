@@ -18,18 +18,21 @@ if __name__ == '__main__':
     state0[0] = np.random.random()
     state0[1] = np.random.random()
 
+    num_total = 20
+    num_seq = 20
+
     # Greedy
-    search_algo = Greedy(func, state0, 100, 20)
+    search_algo = Greedy(func, state0, num_total, num_seq)
     res_greedy = search_algo.search()
     print("Greedy:", res_greedy.reward)
     print(res_greedy.seq)
     # Beam search
-    search_algo = BeamSearch(func, state0, 100, 20, 10)
+    search_algo = BeamSearch(func, state0, num_total, num_seq, 10)
     res_bs = search_algo.search()
     print("Beam search:", res_bs.reward)
     print(res_bs.seq)
     # Monte Carlo Tree Search
-    search_algo = MCTS(func, state0, 100, 20, 1000, gamma=0.5)
+    search_algo = MCTS(func, state0, num_total, num_seq, 1000, gamma=0.8)
     res_mcts = search_algo.search()
     print("MCTS:", res_mcts.reward)
     print(res_mcts.seq)
