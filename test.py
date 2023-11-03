@@ -8,7 +8,7 @@ from src.beam_search import BeamSearch
 from src.mcts import MCTS
 
 def func(state, idx):
-    state_next = np.array([np.cos(idx), np.sin(idx)])
+    state_next = np.array([np.cos(idx**2), np.sin(idx)])
     dist = np.linalg.norm(state_next - state)
     score = dist
     return score, state_next
@@ -18,8 +18,8 @@ if __name__ == '__main__':
     state0[0] = np.random.random()
     state0[1] = np.random.random()
 
-    num_total = 20
-    num_seq = 20
+    num_total = 12
+    num_seq = 12
 
     # Greedy
     search_algo = Greedy(func, state0, num_total, num_seq)
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     print("Beam search:", res_bs.reward)
     print(res_bs.seq)
     # Monte Carlo Tree Search
-    search_algo = MCTS(func, state0, num_total, num_seq, 1000, gamma=0.8)
+    search_algo = MCTS(func, state0, num_total, num_seq, 1000, gamma=0.9, epsilon=0.1)
     res_mcts = search_algo.search()
     print("MCTS:", res_mcts.reward)
     print(res_mcts.seq)
@@ -45,19 +45,19 @@ if __name__ == '__main__':
     x1 = [state0[0]]
     y1 = [state0[1]]
     for idx in res_greedy.seq:
-        x1.append(np.cos(idx))
+        x1.append(np.cos(idx**2))
         y1.append(np.sin(idx))
 
     x2 = [state0[0]]
     y2 = [state0[1]]
     for idx in res_bs.seq:
-        x2.append(np.cos(idx))
+        x2.append(np.cos(idx**2))
         y2.append(np.sin(idx))
 
     x3 = [state0[0]]
     y3 = [state0[1]]
     for idx in res_mcts.seq:
-        x3.append(np.cos(idx))
+        x3.append(np.cos(idx**2))
         y3.append(np.sin(idx))
 
     plt.figure()

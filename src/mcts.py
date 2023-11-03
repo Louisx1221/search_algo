@@ -39,7 +39,8 @@ class MCTS():
         node_num = 10,
         seq_len = 5,
         computation_budget = 100,
-        gamma = 0.9
+        gamma = 0.9,
+        epsilon = 0.1
     ):
         super().__init__()
         self.func = func
@@ -49,6 +50,7 @@ class MCTS():
         self.seq_len = seq_len
         self.computation_budget = computation_budget
         self.gamma = gamma
+        self.epsilon = epsilon
 
     def search(self):
         # Create root node v0 with state s0
@@ -135,12 +137,28 @@ class MCTS():
         rewards = node.reward
 
         gamma = self.gamma
+        epsilon = self.epsilon
         # Run until the game over
         while len(current_seq) < self.seq_len:
-            # Pick one random action to play and get next state
-            act = random.choice(range(self.node_num))
-            while act in current_seq:
+            # Epsilon-greedy
+            if random.random() < epsilon:
+                # Pick one random action to play and get next state
                 act = random.choice(range(self.node_num))
+                while act in current_seq:
+                    act = random.choice(range(self.node_num))
+            else:
+                # Greedy
+                reward_best = np.inf
+                act_best = 0
+                for act in range(self.node_num):
+                    if act in current_seq:
+                        continue
+                    reward, _ = self.func(current_state, act)
+                    if reward < reward_best:
+                        reward_best = reward
+                        act_best = act
+                act = act_best
+
             reward, current_state = self.func(current_state, act)
             current_seq.append(act)
             # Discount reward
