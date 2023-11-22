@@ -4,6 +4,7 @@
 # 2023/10/11
 
 import numpy as np
+import copy
 
 class Candidate():
     def __init__(self, state = None):
@@ -32,7 +33,6 @@ class Greedy():
         super().__init__()
         self.func = func
         self.state0 = state0
-        self.state_len = len(state0)
         self.cand_num = cand_num
         self.seq_len = seq_len
 
@@ -44,7 +44,7 @@ class Greedy():
         for _ in range(self.seq_len):
             # Predict next token.
             score_next = np.zeros(self.cand_num)
-            state_next = np.zeros([self.cand_num, self.state_len])
+            state_next = [copy.copy(self.state0)] * self.cand_num
             for j in range(self.cand_num):
                 if j in candidate.seq:
                     score_next[j] = np.inf
@@ -59,7 +59,7 @@ class Greedy():
             candidate.seq.append(idx_top)
             candidate.seq_rew.append(score_top)
             candidate.reward += score_top
-            candidate.state = state_next[idx_top].copy()
+            candidate.state = copy.copy(state_next[idx_top])
 
         # Get top candidate.
         return candidate

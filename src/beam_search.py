@@ -4,6 +4,7 @@
 # 2023/10/11
 
 import numpy as np
+import copy
 
 class Candidate():
     def __init__(self, state = None):
@@ -34,7 +35,6 @@ class BeamSearch():
         super().__init__()
         self.func = func
         self.state0 = state0
-        self.state_len = len(state0)
         self.cand_num = cand_num
         self.seq_len = seq_len
         self.width = width
@@ -55,7 +55,7 @@ class BeamSearch():
 
                 # Predict next token.
                 score_next = np.zeros(self.cand_num)
-                state_next = np.zeros([self.cand_num, self.state_len])
+                state_next = [copy.copy(self.state0)] * self.cand_num
                 for j in range(self.cand_num):
                     if j in seq:
                         score_next[j] = np.inf
@@ -76,7 +76,7 @@ class BeamSearch():
                     candidate.seq_rew = seq_rew.copy()
                     candidate.seq_rew.append(score_top[j])
                     candidate.reward = reward + score_top[j]
-                    candidate.state = state_next[idx_top[j]].copy()
+                    candidate.state = copy.copy(state_next[idx_top[j]])
 
                     # Add to new candidates.
                     candidates_new.append(candidate)

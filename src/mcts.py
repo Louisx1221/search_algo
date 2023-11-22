@@ -6,6 +6,7 @@
 
 import numpy as np
 import random
+import copy
 
 class Node():
     def __init__(self, state = None):
@@ -45,7 +46,6 @@ class MCTS():
         super().__init__()
         self.func = func
         self.state0 = state0
-        self.state_len = len(state0)
         self.node_num = node_num
         self.seq_len = seq_len
         self.computation_budget = computation_budget
@@ -132,7 +132,7 @@ class MCTS():
 
     def default_policy(self, node):
         # Get the state of the game
-        current_state = node.state.copy()
+        current_state = copy.copy(node.state)
         current_seq = node.seq.copy()
         rewards = node.reward
 
@@ -175,6 +175,6 @@ class MCTS():
 
             # Update the quality value
             node.quality += reward
-            
+
             # Change the node to the parent node
             node = node.parent
