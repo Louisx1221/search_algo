@@ -5,6 +5,7 @@
 
 import numpy as np
 import copy
+import time
 
 class Candidate():
     def __init__(self, state = None):
@@ -37,6 +38,7 @@ class Greedy():
         self.seq_len = seq_len
 
     def search(self):
+        t0 = time.time()
         # Initialize candidate.
         candidate = Candidate(self.state0)
 
@@ -62,4 +64,5 @@ class Greedy():
             candidate.state = copy.copy(state_next[idx_top])
 
         # Get top candidate.
+        candidate.time = time.time() - t0
         return candidate

@@ -7,6 +7,7 @@
 import numpy as np
 import random
 import copy
+import time
 
 class Node():
     def __init__(self, state = None):
@@ -53,12 +54,14 @@ class MCTS():
         self.epsilon = epsilon
 
     def search(self):
+        t0 = time.time()
         # Create root node v0 with state s0
         node = Node(self.state0)
         for _ in range(self.seq_len):
             node = self.uct_search(node)
 
         node.reward = -node.reward
+        node.time = time.time() - t0
         return node
 
     def uct_search(self, node):

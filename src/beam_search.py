@@ -5,6 +5,7 @@
 
 import numpy as np
 import copy
+import time
 
 class Candidate():
     def __init__(self, state = None):
@@ -37,9 +38,10 @@ class BeamSearch():
         self.state0 = state0
         self.cand_num = cand_num
         self.seq_len = seq_len
-        self.width = width
+        self.width = min(width, cand_num)
 
     def search(self):
+        t0 = time.time()
         # Initialize candidates.
         candidates = [Candidate(self.state0)]
 
@@ -86,4 +88,5 @@ class BeamSearch():
             candidates = candidates_new[:self.width].copy()
 
         # Get top candidate.
-        return candidates[0] 
+        candidates[0].time = time.time() - t0
+        return candidates[0]
