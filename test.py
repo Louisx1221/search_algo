@@ -19,7 +19,7 @@ if __name__ == '__main__':
     state0[0] = np.random.random()
     state0[1] = np.random.random()
 
-    num_total = 8
+    num_total = 10
     num_seq = 8
 
     # Greedy
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     res_mcts = search_algo.search()
     print("MCTS:", res_mcts.reward, res_mcts.time)
     print(res_mcts.seq)
-    Traversal
+    # Traversal
     search_algo = Traversal(func, state0, num_total, num_seq)
     res_trav = search_algo.search()
     print("Traversal:", res_trav.reward, res_trav.time)

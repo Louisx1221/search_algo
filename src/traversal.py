@@ -1,7 +1,7 @@
 # traversal.py
 # Traversal algorithm
 # louisx1221@gmail.com
-# 2024/03/20
+# 2024/03/21
 
 import numpy as np
 import copy
@@ -11,7 +11,8 @@ class Candidate():
     def __init__(self, state = None):
         self.seq = []
         self.seq_rew = []
-        self.reward = 0.
+        self.reward = np.inf
+        self.seq_sta = [state]
         self.state = state
 
 class Traversal():
@@ -39,46 +40,57 @@ class Traversal():
 
     def search(self):
         t0 = time.time()
+
         # Initialize sequence
-        seq = [0] * self.seq_len
-        score_best = np.inf
-        seq_best = seq.copy()
+        cand = Candidate(self.state0)
+        for _ in range(self.seq_len):
+            cand = self.expand(cand)
+        res = copy.deepcopy(cand)
 
         # Loop
-        while sum(seq) < self.seq_len * (self.cand_num - 1):
-            # Update sequence
-            for i in range(self.seq_len):
-                seq[i] += 1
-                if seq[i] == self.cand_num:
-                    seq[i] = 0
-                else:
-                    break
+        while True:
+            cand = self.next(cand)
+            if len(cand.seq) == 0:
+                break
+            if cand.reward < res.reward:
+                res = copy.deepcopy(cand)
 
-            # Check repeat
-            flag_repeat = False
-            for i in range(self.seq_len):
-                for j in range(i + 1, self.seq_len):
-                    if seq[i] == seq[j]:
-                        flag_repeat = True
-                        break
-                if flag_repeat:
-                    break
-            if flag_repeat:
-                continue
-
-            # Objective function value
-            score = 0.
-            state_i = copy.copy(self.state0)
-            for i in range(self.seq_len):
-                score_i, state_i = self.func(state_i, seq[i])
-                score += score_i
-
-            # Best candidate
-            if score < score_best:
-                score_best = score
-                seq_best = seq.copy()
-        res = Candidate()
-        res.seq = seq_best.copy()
-        res.reward = score_best
         res.time = time.time() - t0
         return res
+
+    def expand(self, cand):
+        act = 0
+        while act in cand.seq:
+            act += 1
+            if act >= self.cand_num:
+                break
+
+        rew, sta = self.func(cand.seq_sta[-1], act)
+        cand.seq += [act]
+        cand.seq_rew += [rew]
+        cand.seq_sta += [sta]
+        if len(cand.seq) == self.seq_len:
+            cand.reward = sum(cand.seq_rew)
+        return cand
+
+    def next(self, cand):
+        act = cand.seq[-1]
+        while act in cand.seq:
+            act += 1
+            if act >= self.cand_num:
+                del cand.seq[-1], cand.seq_rew[-1], cand.seq_sta[-1]
+                if len(cand.seq) == 0:
+                    return cand
+                act = cand.seq[-1]
+        del cand.seq[-1], cand.seq_rew[-1], cand.seq_sta[-1]
+
+        rew, sta = self.func(cand.seq_sta[-1], act)
+        cand.seq += [act]
+        cand.seq_rew += [rew]
+        cand.seq_sta += [sta]
+        if len(cand.seq) == self.seq_len:
+            cand.reward = sum(cand.seq_rew)
+
+        for _ in range(self.seq_len - len(cand.seq)):
+            cand = self.expand(cand)
+        return cand
